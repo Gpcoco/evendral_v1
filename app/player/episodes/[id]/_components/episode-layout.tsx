@@ -2,10 +2,11 @@
 
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { NodeContent } from './node-content';
 import { InventoryDialog } from './inventory-dialog';
 import { QrScannerDialog } from './qr-scanner-dialog';
-import { Home, Package, QrCode } from 'lucide-react';
+import { Home, Package, QrCode, Target } from 'lucide-react';
 import Link from 'next/link';
 import type { Episode, ContentNode } from '@/lib/types/database';
 
@@ -42,28 +43,42 @@ export function EpisodeLayout({ episode, player, nodes, inventory, episodeId }: 
   const [showScanner, setShowScanner] = useState(false);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-900 to-slate-800 text-white pb-20">
-      {/* Fixed Header */}
-      <header className="sticky top-0 z-40 bg-slate-900/95 backdrop-blur border-b border-slate-700 shadow-lg">
-        <div className="container mx-auto px-4 py-3">
-          <div className="flex items-center justify-between">
-            <div className="flex-1">
-              <h1 className="text-lg font-bold truncate">{episode.name}</h1>
-              <p className="text-xs text-slate-400">{player.display_name}</p>
+  <div className="min-h-screen bg-gradient-to-b from-slate-900 to-slate-800 text-white pb-20 overflow-x-hidden">
+    {/* Fixed Header */}
+    <header className="sticky top-0 z-40 bg-slate-900/95 backdrop-blur border-b border-slate-700 shadow-lg">
+      <div className="container mx-auto px-3 py-3 max-w-full">
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex-1 min-w-0">
+            <h1 className="text-base sm:text-lg font-bold truncate">{episode.name}</h1>
+            <p className="text-xs text-slate-400 truncate">{player.display_name}</p>
+          </div>
+          
+          {/* Side Quests Button */}
+          <Link href={`/player/episodes/${episodeId}/sidequests`}>
+            <Button 
+              size="sm" 
+              variant="outline" 
+              className="border-purple-500 text-purple-400 hover:bg-purple-500/10 flex-shrink-0 h-8 px-2"
+            >
+              <Target className="w-4 h-4" />
+              <span className="hidden sm:inline text-xs ml-1">Side</span>
+            </Button>
+          </Link>
+          
+          {/* Player Stats - Compact on mobile */}
+          <div className="flex items-center gap-2 text-xs flex-shrink-0">
+            <div className="text-right">
+              <div className="text-[10px] text-slate-400">Lv</div>
+              <div className="font-bold text-amber-400">{player.level}</div>
             </div>
-            <div className="flex items-center gap-4 text-sm">
-              <div className="text-right">
-                <div className="text-xs text-slate-400">Level</div>
-                <div className="font-bold text-amber-400">{player.level}</div>
-              </div>
-              <div className="text-right">
-                <div className="text-xs text-slate-400">XP</div>
-                <div className="font-bold text-blue-400">{player.experience_points}</div>
-              </div>
+            <div className="text-right">
+              <div className="text-[10px] text-slate-400">XP</div>
+              <div className="font-bold text-blue-400 text-xs">{player.experience_points}</div>
             </div>
           </div>
         </div>
-      </header>
+      </div>
+    </header>
 
       {/* Main Content */}
       <main className="container mx-auto px-4 py-6 space-y-4">
