@@ -4,9 +4,17 @@ import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { NodeContent } from './node-content';
 import { InventoryDialog } from './inventory-dialog';
-import { Home, Package, Target } from 'lucide-react';
+import { QrScannerDialog } from './qr-scanner-dialog';
+import { Home, Package, QrCode } from 'lucide-react';
 import Link from 'next/link';
 import type { Episode, ContentNode } from '@/lib/types/database';
+
+interface Player {
+  player_id: string;
+  display_name: string | null;
+  level: number;
+  experience_points: number;
+}
 
 interface InventoryItem {
   item_id: string;
@@ -21,13 +29,6 @@ interface InventoryItem {
   };
 }
 
-interface Player {
-  player_id: string;
-  display_name: string | null;
-  level: number;
-  experience_points: number;
-}
-
 interface Props {
   episode: Episode;
   player: Player;
@@ -36,9 +37,9 @@ interface Props {
   episodeId: string;
 }
 
-
 export function EpisodeLayout({ episode, player, nodes, inventory, episodeId }: Props) {
   const [showInventory, setShowInventory] = useState(false);
+  const [showScanner, setShowScanner] = useState(false);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-900 to-slate-800 text-white pb-20">
@@ -123,20 +124,28 @@ export function EpisodeLayout({ episode, player, nodes, inventory, episodeId }: 
             </button>
 
             <button
+              onClick={() => setShowScanner(true)}
               className="flex flex-col items-center gap-1 text-slate-400 hover:text-white transition-colors"
             >
-              <Target size={24} />
-              <span className="text-xs">Obiettivi</span>
+              <QrCode size={24} />
+              <span className="text-xs">Scan QR</span>
             </button>
           </div>
         </div>
       </nav>
 
-      {/* Inventory Dialog */}
+      {/* Dialogs */}
       <InventoryDialog 
         inventory={inventory}
         open={showInventory}
         onOpenChange={setShowInventory}
+      />
+      
+      <QrScannerDialog
+        open={showScanner}
+        onOpenChange={setShowScanner}
+        playerId={player.player_id}
+        episodeId={episodeId}
       />
     </div>
   );
