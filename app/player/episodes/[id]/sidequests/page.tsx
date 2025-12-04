@@ -3,9 +3,9 @@ import { redirect } from 'next/navigation';
 import { getPlayerByUserId } from '@/lib/actions/player-actions';
 import { getUnlockedNodes, getEpisodeWithCheck } from '@/lib/actions/player-nodes-actions';
 import { getPlayerEpisodeInventory } from '@/lib/actions/player-inventory-actions';
-import { EpisodeLayout } from './_components/episode-layout';
+import { SideQuestsLayout } from './_components/sidequests-layout';
 
-export default async function PlayerEpisodePage({ 
+export default async function SideQuestsPage({ 
   params 
 }: { 
   params: Promise<{ id: string }> 
@@ -23,12 +23,12 @@ export default async function PlayerEpisodePage({
   const episode = await getEpisodeWithCheck(id);
   if (!episode) redirect('/player/profile');
 
-  // Recupera solo nodi MAIN STORY
-  const nodes = await getUnlockedNodes(id, player.player_id, 'main_story');
+  // Recupera solo nodi SIDE QUEST
+  const nodes = await getUnlockedNodes(id, player.player_id, 'side_quest');
   const inventory = await getPlayerEpisodeInventory(player.player_id, id);
 
   return (
-    <EpisodeLayout
+    <SideQuestsLayout
       episode={episode}
       player={player}
       nodes={nodes}

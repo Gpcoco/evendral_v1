@@ -1,15 +1,23 @@
 'use server';
 
 import { createClient } from '@/lib/supabase/server';
+import type { NodeCategory } from '@/lib/types/database';
 
-export async function getUnlockedNodes(episodeId: string, playerId: string) {
+export async function getUnlockedNodes(episodeId: string, playerId: string, category?: NodeCategory) {
   const supabase = await createClient();
   
-  const { data: nodes } = await supabase
+  let query = supabase
     .from('content_nodes')
     .select('*, conditions(*)')
     .eq('episode_id', episodeId)
     .order('created_at', { ascending: true });
+  
+  // Filtra per categoria se specificata
+  if (category) {
+    query = query.eq('node_category', category);
+  }
+
+  const { data: nodes } = await query;
 
   if (!nodes) return [];
 
