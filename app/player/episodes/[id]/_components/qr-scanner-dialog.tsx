@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import {
   Dialog,
   DialogContent,
@@ -9,16 +10,19 @@ import {
 } from '@/components/ui/dialog';
 import { Html5Qrcode } from 'html5-qrcode';
 import { addItemFromQr } from '@/lib/actions/qr-item-actions';
+import { createExchangeSession } from '@/lib/actions/exchange-actions';
 import { Button } from '@/components/ui/button';
-import { CheckCircle2, XCircle } from 'lucide-react';
+import { CheckCircle2, XCircle, Users } from 'lucide-react';
 
 interface ScanResult {
   success: boolean;
   message: string;
+  type: 'item' | 'player';
   item?: {
     name: string;
     description: string | null;
   };
+  sessionId?: string;
 }
 
 interface Props {
@@ -33,20 +37,21 @@ export function QrScannerDialog({ open, onOpenChange, playerId, episodeId }: Pro
   const [result, setResult] = useState<ScanResult | null>(null);
   const scannerRef = useRef<Html5Qrcode | null>(null);
   const isProcessing = useRef(false);
+  const router = useRouter();
 
-useEffect(() => {
-  if (open && !scannerRef.current) {
-    // Aspetta che il dialog sia completamente renderizzato
-    setTimeout(() => {
-      startScanner();
-    }, 300);
-  }
-  
-  return () => {
-    stopScanner();
-  };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-}, [open]);
+  useEffect(() => {
+    if (open && !scannerRef.current) {
+      // Aspetta che il dialog sia completamente renderizzato
+      setTimeout(() => {
+        startScanner();
+      }, 300);
+    }
+    
+    return () => {
+      stopScanner();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
 
   const startScanner = async () => {
     try {
@@ -65,7 +70,11 @@ useEffect(() => {
       );
     } catch (err) {
       console.error("Errore avvio scanner:", err);
-      setResult({ success: false, message: 'Impossibile accedere alla camera' });
+      setResult({ 
+        success: false, 
+        message: 'Impossibile accedere alla camera',
+        type: 'item'
+      });
       setScanning(false);
     }
   };
@@ -93,15 +102,51 @@ useEffect(() => {
     // Verifica se è un UUID valido
     const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
     if (!uuidRegex.test(decodedText)) {
-      setResult({ success: false, message: 'QR code non valido' });
+      setResult({ 
+        success: false, 
+        message: 'QR code non valido',
+        type: 'item'
+      });
       isProcessing.current = false;
       return;
     }
 
-    // Aggiungi item
-    const response = await addItemFromQr(decodedText, playerId, episodeId);
-    setResult(response);
+    // Determina se è un player_id o item_id
+    const scanResult = await handleQrScan(decodedText);
+    setResult(scanResult);
+    
+    // Se è un player e lo scambio è creato, reindirizza automaticamente
+    if (scanResult.success && scanResult.type === 'player' && scanResult.sessionId) {
+      setTimeout(() => {
+        router.push(`/player/episodes/${episodeId}/exchange/session/${scanResult.sessionId}`);
+      }, 1500);
+    }
+    
     isProcessing.current = false;
+  };
+
+  const handleQrScan = async (scannedId: string): Promise<ScanResult> => {
+    // Prima prova a vedere se è un player_id
+    const exchangeResult = await createExchangeSession(episodeId, playerId, scannedId);
+    
+    if (exchangeResult.success) {
+      return {
+        success: true,
+        type: 'player',
+        message: 'Giocatore trovato! Avvio sessione di scambio...',
+        sessionId: exchangeResult.sessionId
+      };
+    }
+
+    // Se non è un player, prova come item_id
+    const itemResult = await addItemFromQr(scannedId, playerId, episodeId);
+    
+    return {
+      success: itemResult.success,
+      type: 'item',
+      message: itemResult.message,
+      item: itemResult.item
+    };
   };
 
   const handleClose = () => {
@@ -135,7 +180,7 @@ useEffect(() => {
               />
               {scanning && (
                 <p className="text-center text-sm text-slate-400">
-                  Inquadra il QR code dell oggetto...
+                  Inquadra il QR code di un oggetto o di un altro giocatore...
                 </p>
               )}
             </>
@@ -145,14 +190,26 @@ useEffect(() => {
             <div className="text-center py-8">
               {result.success ? (
                 <>
-                  <CheckCircle2 className="w-16 h-16 text-green-500 mx-auto mb-4" />
-                  <h3 className="text-xl font-bold text-green-400 mb-2">
-                    Oggetto Trovato!
-                  </h3>
-                  {result.item && (
-                    <p className="text-lg mb-4">🎁 {result.item.name}</p>
+                  {result.type === 'item' ? (
+                    <>
+                      <CheckCircle2 className="w-16 h-16 text-green-500 mx-auto mb-4" />
+                      <h3 className="text-xl font-bold text-green-400 mb-2">
+                        Oggetto Trovato!
+                      </h3>
+                      {result.item && (
+                        <p className="text-lg mb-4">🎁 {result.item.name}</p>
+                      )}
+                      <p className="text-slate-300 mb-6">{result.message}</p>
+                    </>
+                  ) : (
+                    <>
+                      <Users className="w-16 h-16 text-amber-500 mx-auto mb-4" />
+                      <h3 className="text-xl font-bold text-amber-400 mb-2">
+                        Giocatore Trovato!
+                      </h3>
+                      <p className="text-slate-300 mb-6">{result.message}</p>
+                    </>
                   )}
-                  <p className="text-slate-300 mb-6">{result.message}</p>
                 </>
               ) : (
                 <>
@@ -164,21 +221,24 @@ useEffect(() => {
                 </>
               )}
               
-              <div className="flex gap-3">
-                <Button 
-                  onClick={handleScanAgain}
-                  className="flex-1 bg-blue-600 hover:bg-blue-700"
-                >
-                  Scansiona Altro
-                </Button>
-                <Button 
-                  onClick={handleClose}
-                  variant="outline"
-                  className="flex-1"
-                >
-                  Chiudi
-                </Button>
-              </div>
+              {/* Mostra pulsanti solo se non sta per reindirizzare */}
+              {!(result.success && result.type === 'player') && (
+                <div className="flex gap-3">
+                  <Button 
+                    onClick={handleScanAgain}
+                    className="flex-1 bg-blue-600 hover:bg-blue-700"
+                  >
+                    Scansiona Altro
+                  </Button>
+                  <Button 
+                    onClick={handleClose}
+                    variant="outline"
+                    className="flex-1"
+                  >
+                    Chiudi
+                  </Button>
+                </div>
+              )}
             </div>
           )}
         </div>
