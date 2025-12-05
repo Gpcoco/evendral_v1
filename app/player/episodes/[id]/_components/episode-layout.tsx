@@ -4,7 +4,6 @@ import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { NodeContent } from './node-content';
-import { InventoryDialog } from './inventory-dialog';
 import { QrScannerDialog } from './qr-scanner-dialog';
 import { Home, Package, QrCode, Target } from 'lucide-react';
 import Link from 'next/link';
@@ -39,7 +38,6 @@ interface Props {
 }
 
 export function EpisodeLayout({ episode, player, nodes, inventory, episodeId }: Props) {
-  const [showInventory, setShowInventory] = useState(false);
   const [showScanner, setShowScanner] = useState(false);
 
   return (
@@ -125,8 +123,8 @@ export function EpisodeLayout({ episode, player, nodes, inventory, episodeId }: 
               <span className="text-xs">Home</span>
             </Link>
             
-            <button
-              onClick={() => setShowInventory(true)}
+            <Link
+              href={`/player/episodes/${episodeId}/inventory`}
               className="flex flex-col items-center gap-1 text-slate-400 hover:text-white transition-colors relative"
             >
               <Package size={24} />
@@ -136,7 +134,7 @@ export function EpisodeLayout({ episode, player, nodes, inventory, episodeId }: 
                   {inventory.length}
                 </span>
               )}
-            </button>
+            </Link>
 
             <button
               onClick={() => setShowScanner(true)}
@@ -150,12 +148,7 @@ export function EpisodeLayout({ episode, player, nodes, inventory, episodeId }: 
       </nav>
 
       {/* Dialogs */}
-      <InventoryDialog 
-        inventory={inventory}
-        open={showInventory}
-        onOpenChange={setShowInventory}
-      />
-      
+
       <QrScannerDialog
         open={showScanner}
         onOpenChange={setShowScanner}
