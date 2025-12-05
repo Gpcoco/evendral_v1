@@ -5,7 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { NodeContent } from './node-content';
 import { QrScannerDialog } from './qr-scanner-dialog';
-import { Home, Package, QrCode, Target } from 'lucide-react';
+import { EpisodeFooter } from '@/components/player/episode-footer';
+import { Target } from 'lucide-react';
 import Link from 'next/link';
 import type { Episode, ContentNode } from '@/lib/types/database';
 
@@ -41,42 +42,42 @@ export function EpisodeLayout({ episode, player, nodes, inventory, episodeId }: 
   const [showScanner, setShowScanner] = useState(false);
 
   return (
-  <div className="min-h-screen bg-gradient-to-b from-slate-900 to-slate-800 text-white pb-20 overflow-x-hidden">
-    {/* Fixed Header */}
-    <header className="sticky top-0 z-40 bg-slate-900/95 backdrop-blur border-b border-slate-700 shadow-lg">
-      <div className="container mx-auto px-3 py-3 max-w-full">
-        <div className="flex items-center justify-between gap-2">
-          <div className="flex-1 min-w-0">
-            <h1 className="text-base sm:text-lg font-bold truncate">{episode.name}</h1>
-            <p className="text-xs text-slate-400 truncate">{player.display_name}</p>
-          </div>
-          
-          {/* Side Quests Button */}
-          <Link href={`/player/episodes/${episodeId}/sidequests`}>
-            <Button 
-              size="sm" 
-              variant="outline" 
-              className="border-purple-500 text-purple-400 hover:bg-purple-500/10 flex-shrink-0 h-8 px-2"
-            >
-              <Target className="w-4 h-4" />
-              <span className="hidden sm:inline text-xs ml-1">Side</span>
-            </Button>
-          </Link>
-          
-          {/* Player Stats - Compact on mobile */}
-          <div className="flex items-center gap-2 text-xs flex-shrink-0">
-            <div className="text-right">
-              <div className="text-[10px] text-slate-400">Lv</div>
-              <div className="font-bold text-amber-400">{player.level}</div>
+    <div className="min-h-screen bg-gradient-to-b from-slate-900 to-slate-800 text-white pb-20 overflow-x-hidden">
+      {/* Fixed Header */}
+      <header className="sticky top-0 z-40 bg-slate-900/95 backdrop-blur border-b border-slate-700 shadow-lg">
+        <div className="container mx-auto px-3 py-3 max-w-full">
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex-1 min-w-0">
+              <h1 className="text-base sm:text-lg font-bold truncate">{episode.name}</h1>
+              <p className="text-xs text-slate-400 truncate">{player.display_name}</p>
             </div>
-            <div className="text-right">
-              <div className="text-[10px] text-slate-400">XP</div>
-              <div className="font-bold text-blue-400 text-xs">{player.experience_points}</div>
+            
+            {/* Side Quests Button */}
+            <Link href={`/player/episodes/${episodeId}/sidequests`}>
+              <Button 
+                size="sm" 
+                variant="outline" 
+                className="border-purple-500 text-purple-400 hover:bg-purple-500/10 flex-shrink-0 h-8 px-2"
+              >
+                <Target className="w-4 h-4" />
+                <span className="hidden sm:inline text-xs ml-1">Side</span>
+              </Button>
+            </Link>
+            
+            {/* Player Stats - Compact on mobile */}
+            <div className="flex items-center gap-2 text-xs flex-shrink-0">
+              <div className="text-right">
+                <div className="text-[10px] text-slate-400">Lv</div>
+                <div className="font-bold text-amber-400">{player.level}</div>
+              </div>
+              <div className="text-right">
+                <div className="text-[10px] text-slate-400">XP</div>
+                <div className="font-bold text-blue-400 text-xs">{player.experience_points}</div>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-    </header>
+      </header>
 
       {/* Main Content */}
       <main className="container mx-auto px-4 py-6 space-y-4">
@@ -111,44 +112,14 @@ export function EpisodeLayout({ episode, player, nodes, inventory, episodeId }: 
         )}
       </main>
 
-      {/* Bottom Navigation */}
-      <nav className="fixed bottom-0 left-0 right-0 z-40 bg-slate-900/95 backdrop-blur border-t border-slate-700 shadow-lg">
-        <div className="container mx-auto px-4">
-          <div className="flex items-center justify-around py-3">
-            <Link 
-              href="/player/profile"
-              className="flex flex-col items-center gap-1 text-slate-400 hover:text-white transition-colors"
-            >
-              <Home size={24} />
-              <span className="text-xs">Home</span>
-            </Link>
-            
-            <Link
-              href={`/player/episodes/${episodeId}/inventory`}
-              className="flex flex-col items-center gap-1 text-slate-400 hover:text-white transition-colors relative"
-            >
-              <Package size={24} />
-              <span className="text-xs">Inventario</span>
-              {inventory.length > 0 && (
-                <span className="absolute -top-1 -right-1 bg-amber-500 text-slate-900 text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
-                  {inventory.length}
-                </span>
-              )}
-            </Link>
+      {/* Footer */}
+      <EpisodeFooter 
+        episodeId={episodeId}
+        inventoryCount={inventory.length}
+        onScanQr={() => setShowScanner(true)}
+      />
 
-            <button
-              onClick={() => setShowScanner(true)}
-              className="flex flex-col items-center gap-1 text-slate-400 hover:text-white transition-colors"
-            >
-              <QrCode size={24} />
-              <span className="text-xs">Scan QR</span>
-            </button>
-          </div>
-        </div>
-      </nav>
-
-      {/* Dialogs */}
-
+      {/* QR Scanner Dialog */}
       <QrScannerDialog
         open={showScanner}
         onOpenChange={setShowScanner}
