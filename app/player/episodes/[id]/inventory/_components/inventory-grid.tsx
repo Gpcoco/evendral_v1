@@ -52,18 +52,18 @@ export function InventoryGrid({ inventory }: Props) {
 
   return (
     <>
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4">
+      <div className="grid grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7 gap-2 sm:gap-4">
         {inventory.map((invItem) => (
           <Card
             key={invItem.item_id}
             className="bg-slate-800/80 border-slate-700 hover:bg-slate-800 cursor-pointer transition-all hover:scale-105 active:scale-95"
             onClick={() => setSelectedItem(invItem)}
           >
-            <CardContent className="p-3 sm:p-4">
+            <CardContent className="p-2 sm:p-3">
               {/* Item Image with Rarity Border */}
-              <div className={`relative w-full aspect-square rounded-lg mb-2 bg-gradient-to-br ${
+              <div className={`relative w-full aspect-square rounded-lg mb-1 sm:mb-2 bg-gradient-to-br ${
                 rarityColors[invItem.item.rarity as keyof typeof rarityColors]
-              } p-1`}>
+              } p-0.5 sm:p-1`}>
                 <div className="w-full h-full bg-slate-900 rounded-md flex items-center justify-center overflow-hidden">
                   {invItem.item.icon_url ? (
                     <Image
@@ -74,27 +74,27 @@ export function InventoryGrid({ inventory }: Props) {
                       className="object-contain"
                     />
                   ) : (
-                    <Package className="w-8 h-8 sm:w-12 sm:h-12 text-slate-500" />
+                    <Package className="w-6 h-6 sm:w-10 sm:h-10 text-slate-500" />
                   )}
                 </div>
                 
                 {/* Quantity Badge */}
                 {invItem.quantity > 1 && (
-                  <div className="absolute -bottom-1 -right-1 sm:-bottom-2 sm:-right-2 bg-amber-500 text-slate-900 font-bold text-xs rounded-full w-6 h-6 sm:w-7 sm:h-7 flex items-center justify-center border-2 border-slate-900">
+                  <div className="absolute -bottom-1 -right-1 bg-amber-500 text-slate-900 font-bold text-[10px] sm:text-xs rounded-full w-5 h-5 sm:w-6 sm:h-6 flex items-center justify-center border border-slate-900">
                     {invItem.quantity}
                   </div>
                 )}
 
                 {/* Equipped Badge */}
                 {invItem.is_equipped && (
-                  <div className="absolute -top-1 -left-1 sm:-top-2 sm:-left-2 bg-green-500 text-white font-bold text-xs rounded-full w-5 h-5 sm:w-6 sm:h-6 flex items-center justify-center border-2 border-slate-900">
+                  <div className="absolute -top-1 -left-1 bg-green-500 text-white font-bold text-[10px] rounded-full w-4 h-4 sm:w-5 sm:h-5 flex items-center justify-center border border-slate-900">
                     ✓
                   </div>
                 )}
               </div>
 
               {/* Item Name */}
-              <h3 className="text-xs sm:text-sm font-semibold text-white text-center truncate">
+              <h3 className="text-[10px] sm:text-xs font-semibold text-white text-center truncate leading-tight">
                 {invItem.item.name}
               </h3>
             </CardContent>

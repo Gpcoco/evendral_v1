@@ -39,96 +39,105 @@ export function ItemDetailDialog({ item, onClose }: Props) {
 
   return (
     <Dialog open={!!item} onOpenChange={onClose}>
-      <DialogContent className="bg-slate-900 border-slate-700 text-white max-w-sm sm:max-w-md max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="text-xl sm:text-2xl font-bold pr-6">{item.item.name}</DialogTitle>
+      <DialogContent className="bg-slate-900 border-slate-700 text-white max-w-md p-4 sm:p-6 max-h-[85vh] flex flex-col">
+        <DialogHeader className="flex-shrink-0">
+          <DialogTitle className="text-lg sm:text-xl font-bold pr-6 truncate">
+            {item.item.name}
+          </DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-4">
-          {/* Item Image - Ridotta */}
-          <div className={`w-full max-w-[200px] sm:max-w-[250px] mx-auto aspect-square rounded-lg bg-gradient-to-br ${
+        {/* Fixed height container - no scroll */}
+        <div className="flex flex-col gap-3 flex-1 min-h-0">
+          {/* Item Image - Fixed size */}
+          <div className={`w-32 h-32 sm:w-40 sm:h-40 mx-auto rounded-lg bg-gradient-to-br ${
             rarityColors[item.item.rarity as keyof typeof rarityColors]
-          } p-2`}>
+          } p-1.5 flex-shrink-0`}>
             <div className="w-full h-full bg-slate-900 rounded-md flex items-center justify-center overflow-hidden">
               {item.item.icon_url ? (
                 <Image
                   src={item.item.icon_url}
                   alt={item.item.name}
-                  width={200}
-                  height={200}
+                  width={160}
+                  height={160}
                   className="object-contain"
                 />
               ) : (
-                <Package className="w-20 h-20 text-slate-500" />
+                <Package className="w-16 h-16 text-slate-500" />
               )}
             </div>
           </div>
 
-          {/* Description */}
-          {item.item.description && (
-            <div>
-              <h4 className="text-xs font-semibold text-slate-400 mb-1">Descrizione</h4>
-              <p className="text-sm text-slate-200">{item.item.description}</p>
-            </div>
-          )}
-
-          {/* Stats Grid - Compatta */}
-          <div className="grid grid-cols-2 gap-3 text-sm">
-            <div>
-              <h4 className="text-xs font-semibold text-slate-400 mb-1">Rarità</h4>
-              <span className={`px-2 py-1 rounded-full text-xs font-semibold bg-gradient-to-r ${
-                rarityColors[item.item.rarity as keyof typeof rarityColors]
-              } text-white inline-flex items-center gap-1`}>
-                <Sparkles className="w-3 h-3" />
-                {item.item.rarity}
-              </span>
-            </div>
-
-            {item.item.category && (
-              <div>
-                <h4 className="text-xs font-semibold text-slate-400 mb-1">Categoria</h4>
-                <p className="text-sm text-slate-200 truncate">{item.item.category}</p>
+          {/* Two columns layout */}
+          <div className="grid grid-cols-2 gap-3 flex-1 min-h-0">
+            {/* Left column - Description (scrollable) */}
+            <div className="flex flex-col min-h-0">
+              <h4 className="text-xs font-semibold text-slate-400 mb-1 flex-shrink-0">Descrizione</h4>
+              <div className="flex-1 min-h-0 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-slate-900">
+                <p className="text-xs sm:text-sm text-slate-200">
+                  {item.item.description || 'Nessuna descrizione disponibile'}
+                </p>
               </div>
-            )}
+            </div>
 
-            {item.item.base_value !== null && (
+            {/* Right column - Stats (no scroll) */}
+            <div className="flex flex-col gap-2 text-xs">
               <div>
-                <h4 className="text-xs font-semibold text-slate-400 mb-1">Valore</h4>
-                <p className="text-sm text-slate-200 font-bold">{item.item.base_value}</p>
-              </div>
-            )}
-
-            <div>
-              <h4 className="text-xs font-semibold text-slate-400 mb-1">Quantità</h4>
-              <p className="text-sm text-slate-200 font-bold">{item.quantity}</p>
-            </div>
-
-            <div>
-              <h4 className="text-xs font-semibold text-slate-400 mb-1">Stackable</h4>
-              <p className={`text-sm ${item.item.is_stackable ? 'text-green-400' : 'text-slate-500'}`}>
-                {item.item.is_stackable ? '✓ Sì' : '✗ No'}
-              </p>
-            </div>
-
-            <div>
-              <h4 className="text-xs font-semibold text-slate-400 mb-1">Consumabile</h4>
-              <p className={`text-sm ${item.item.is_consumable ? 'text-green-400' : 'text-slate-500'}`}>
-                {item.item.is_consumable ? '✓ Sì' : '✗ No'}
-              </p>
-            </div>
-
-            {item.is_equipped && (
-              <div className="col-span-2">
-                <span className="px-2 py-1 rounded-full text-xs font-semibold bg-green-500/20 border border-green-500/30 text-green-400 inline-block">
-                  ✓ Equipaggiato
+                <h4 className="text-[10px] font-semibold text-slate-400 mb-0.5">Rarità</h4>
+                <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold bg-gradient-to-r ${
+                  rarityColors[item.item.rarity as keyof typeof rarityColors]
+                } text-white inline-flex items-center gap-1`}>
+                  <Sparkles className="w-2.5 h-2.5" />
+                  {item.item.rarity}
                 </span>
               </div>
-            )}
+
+              {item.item.category && (
+                <div>
+                  <h4 className="text-[10px] font-semibold text-slate-400 mb-0.5">Categoria</h4>
+                  <p className="text-xs text-slate-200 truncate">{item.item.category}</p>
+                </div>
+              )}
+
+              {item.item.base_value !== null && (
+                <div>
+                  <h4 className="text-[10px] font-semibold text-slate-400 mb-0.5">Valore</h4>
+                  <p className="text-xs text-slate-200 font-bold">{item.item.base_value}</p>
+                </div>
+              )}
+
+              <div>
+                <h4 className="text-[10px] font-semibold text-slate-400 mb-0.5">Quantità</h4>
+                <p className="text-xs text-slate-200 font-bold">{item.quantity}</p>
+              </div>
+
+              <div className="flex items-center justify-between gap-2">
+                <div>
+                  <h4 className="text-[10px] font-semibold text-slate-400 mb-0.5">Stack</h4>
+                  <p className={`text-xs ${item.item.is_stackable ? 'text-green-400' : 'text-slate-500'}`}>
+                    {item.item.is_stackable ? '✓' : '✗'}
+                  </p>
+                </div>
+                <div>
+                  <h4 className="text-[10px] font-semibold text-slate-400 mb-0.5">Cons.</h4>
+                  <p className={`text-xs ${item.item.is_consumable ? 'text-green-400' : 'text-slate-500'}`}>
+                    {item.item.is_consumable ? '✓' : '✗'}
+                  </p>
+                </div>
+              </div>
+
+              {item.is_equipped && (
+                <div className="mt-auto">
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-green-500/20 border border-green-500/30 text-green-400 inline-block">
+                    ✓ Equipaggiato
+                  </span>
+                </div>
+              )}
+            </div>
           </div>
 
-          {/* Acquired Date - Compatta */}
-          <div className="text-xs text-slate-500 text-center pt-3 border-t border-slate-800">
-            Acquisito il {new Date(item.acquired_at).toLocaleDateString('it-IT', {
+          {/* Footer - Fixed */}
+          <div className="text-[10px] text-slate-500 text-center pt-2 border-t border-slate-800 flex-shrink-0">
+            Acquisito: {new Date(item.acquired_at).toLocaleDateString('it-IT', {
               day: '2-digit',
               month: 'short',
               year: 'numeric'
