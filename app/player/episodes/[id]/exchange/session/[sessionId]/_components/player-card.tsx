@@ -86,7 +86,7 @@ export function PlayerCard({ player, selectedItem, status }: Props) {
       </div>
 
       {/* Selected Item */}
-      {selectedItem && (
+      {selectedItem?.item && (
         <div className="border-t border-slate-700 pt-4">
           <p className="text-xs text-slate-400 mb-2 uppercase tracking-wide">
             Oggetto Proposto

@@ -8,22 +8,22 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { PlayerCard } from './player-card';
 import { InventorySelector } from './inventory-selector';
-import { selectItemForExchange, confirmExchange, cancelExchangeSession } from '@/lib/actions/exchange-actions';
+import { selectItemForExchange, confirmExchange, cancelExchangeSession, getExchangeSession } from '@/lib/actions/exchange-actions';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
 interface Player {
   player_id: string;
-  display_name: string; // era name
+  display_name: string;
   avatar_url: string | null;
   level: number;
-  experience_points: number; // era experience
+  experience_points: number;
 }
 
 interface Item {
   item_id: string;
   name: string;
   description: string | null;
-  icon_url: string | null; // era image_url
+  icon_url: string | null;
   rarity: string;
 }
 
@@ -91,41 +91,47 @@ export function ExchangeSessionView({
   const remoteConfirmed = isPlayerA ? session.player_b_confirmed : session.player_a_confirmed;
 
   // Setup Realtime subscription
-  useEffect(() => {
-    const supabase = createClient();
-    
-    const channel = supabase
-      .channel(`exchange_session_${sessionId}`)
-      .on(
-        'postgres_changes',
-        {
-          event: 'UPDATE',
-          schema: 'public',
-          table: 'exchange_sessions',
-          filter: `session_id=eq.${sessionId}`
-        },
-        (payload) => {
-          setSession(payload.new as ExchangeSessionData);
+  // Setup Realtime subscription
+useEffect(() => {
+  const supabase = createClient();
+  
+  const channel = supabase
+    .channel(`exchange_session_${sessionId}`)
+    .on(
+      'postgres_changes',
+      {
+        event: 'UPDATE',
+        schema: 'public',
+        table: 'exchange_sessions',
+        filter: `session_id=eq.${sessionId}`
+      },
+      async () => {
+        // Re-fetch completo per ottenere anche le relazioni
+        const updatedSession = await getExchangeSession(sessionId);
+        
+        if (updatedSession) {
+          setSession(updatedSession as ExchangeSessionData);
           
           // Se lo stato diventa completed, reindirizza all'inventario
-          if ((payload.new as ExchangeSessionData).status === 'completed') {
+          if (updatedSession.status === 'completed') {
             setTimeout(() => {
               router.push(`/player/episodes/${episodeId}/inventory`);
             }, 2000);
           }
           
           // Se lo stato diventa cancelled, reindirizza
-          if ((payload.new as ExchangeSessionData).status === 'cancelled') {
+          if (updatedSession.status === 'cancelled') {
             router.push(`/player/episodes/${episodeId}/inventory`);
           }
         }
-      )
-      .subscribe();
+      }
+    )
+    .subscribe();
 
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [sessionId, episodeId, router]);
+  return () => {
+    supabase.removeChannel(channel);
+  };
+}, [sessionId, episodeId, router]);
 
   // Gestisci selezione item
   const handleSelectItem = async (itemId: string) => {
