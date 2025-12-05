@@ -1,11 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { ArrowLeft, ScanLine } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { QRCodeSVG } from 'qrcode.react';
 import { QrScannerDialog } from '../../_components/qr-scanner-dialog';
+import { createClient } from '@/lib/supabase/client';
 
 interface Props {
   episodeId: string;
@@ -15,6 +17,34 @@ interface Props {
 
 export function ExchangeView({ episodeId, episodeName, playerId }: Props) {
   const [showScanner, setShowScanner] = useState(false);
+  const router = useRouter();
+
+  // Ascolta per nuove sessioni di scambio dove questo giocatore è player_b
+  useEffect(() => {
+    const supabase = createClient();
+    
+    const channel = supabase
+      .channel(`player_exchange_${playerId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'exchange_sessions',
+          filter: `player_b_id=eq.${playerId}`
+        },
+        (payload) => {
+          // Reindirizza automaticamente alla sessione di scambio
+          const sessionId = payload.new.session_id;
+          router.push(`/player/episodes/${episodeId}/exchange/session/${sessionId}`);
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [playerId, episodeId, router]);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-900 to-slate-800 text-white">

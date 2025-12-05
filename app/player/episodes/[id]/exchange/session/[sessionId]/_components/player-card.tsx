@@ -5,14 +5,14 @@ import Image from 'next/image';
 
 interface Props {
   player: {
-    name: string;
+    display_name: string;
     avatar_url: string | null;
     level: number;
   };
   selectedItem: {
     item: {
       name: string;
-      image_url: string | null;
+      icon_url: string | null;
       rarity: string;
     };
   } | null;
@@ -60,7 +60,7 @@ export function PlayerCard({ player, selectedItem, status }: Props) {
           {player.avatar_url ? (
             <Image
               src={player.avatar_url}
-              alt={player.name}
+              alt={player.display_name}
               fill
               className="object-cover"
             />
@@ -72,7 +72,7 @@ export function PlayerCard({ player, selectedItem, status }: Props) {
         </div>
         
         <div className="flex-1 min-w-0">
-          <h3 className="font-bold text-lg truncate">{player.name}</h3>
+          <h3 className="font-bold text-lg truncate">{player.display_name}</h3>
           <p className="text-sm text-slate-400">Livello {player.level}</p>
         </div>
 
@@ -95,9 +95,9 @@ export function PlayerCard({ player, selectedItem, status }: Props) {
             <div className={`relative w-16 h-16 rounded-lg overflow-hidden border-2 ${
               rarityColors[selectedItem.item.rarity as keyof typeof rarityColors] || rarityColors.common
             }`}>
-              {selectedItem.item.image_url ? (
+              {selectedItem.item.icon_url ? (
                 <Image
-                  src={selectedItem.item.image_url}
+                  src={selectedItem.item.icon_url}
                   alt={selectedItem.item.name}
                   fill
                   className="object-cover"

@@ -13,17 +13,17 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 
 interface Player {
   player_id: string;
-  name: string;
+  display_name: string; // era name
   avatar_url: string | null;
   level: number;
-  experience: number;
+  experience_points: number; // era experience
 }
 
 interface Item {
   item_id: string;
   name: string;
   description: string | null;
-  image_url: string | null;
+  icon_url: string | null; // era image_url
   rarity: string;
 }
 

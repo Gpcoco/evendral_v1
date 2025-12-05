@@ -7,7 +7,7 @@ interface Item {
   item_id: string;
   name: string;
   description: string | null;
-  image_url: string | null;
+  icon_url: string | null; // era image_url
   rarity: string;
 }
 
@@ -42,7 +42,7 @@ export function InventorySelector({ inventory, selectedItemId, onSelectItem }: P
   if (inventory.length === 0) {
     return (
       <div className="text-center py-8 text-slate-400">
-        <p>Nessun oggetto disponibile nell'inventario</p>
+        <p>Nessun oggetto disponibile nell inventario</p>
       </div>
     );
   }
@@ -66,9 +66,9 @@ export function InventorySelector({ inventory, selectedItemId, onSelectItem }: P
           >
             {/* Item Image */}
             <div className="relative w-full h-full bg-slate-800">
-              {item.item.image_url ? (
+              {item.item.icon_url ? (
                 <Image
-                  src={item.item.image_url}
+                  src={item.item.icon_url}
                   alt={item.item.name}
                   fill
                   className="object-cover"

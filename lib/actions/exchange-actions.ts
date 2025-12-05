@@ -71,32 +71,32 @@ export async function getExchangeSession(sessionId: string) {
       .from('exchange_sessions')
       .select(`
         *,
-        player_a:player!exchange_sessions_player_a_id_fkey(
+        player_a:player!player_a_id(
           player_id,
-          name,
+          display_name,
           avatar_url,
           level,
-          experience
+          experience_points
         ),
-        player_b:player!exchange_sessions_player_b_id_fkey(
+        player_b:player!player_b_id(
           player_id,
-          name,
+          display_name,
           avatar_url,
           level,
-          experience
+          experience_points
         ),
-        player_a_item:items!exchange_sessions_player_a_item_id_fkey(
+        player_a_item:items!player_a_item_id(
           item_id,
           name,
           description,
-          image_url,
+          icon_url,
           rarity
         ),
-        player_b_item:items!exchange_sessions_player_b_item_id_fkey(
+        player_b_item:items!player_b_item_id(
           item_id,
           name,
           description,
-          image_url,
+          icon_url,
           rarity
         )
       `)
