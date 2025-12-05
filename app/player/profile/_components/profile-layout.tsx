@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { EpisodeCard } from './episode-card';
 import { Trophy, Star, Target, LogOut } from 'lucide-react';
