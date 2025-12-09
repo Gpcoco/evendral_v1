@@ -105,6 +105,7 @@ export function EpisodeLayout({ episode, player, nodes, inventory, episodeId }: 
                   content={node.content_html}
                   playerId={player.player_id}
                   episodeId={episodeId}
+                  nodeId={node.node_id} 
                 />
               </CardContent>
             </Card>

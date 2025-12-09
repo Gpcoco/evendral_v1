@@ -1,14 +1,10 @@
-import { getNodesByEpisode, createNode, deleteNode } from '@/lib/actions/nodes-actions';
+import { getNodesByEpisode, deleteNode } from '@/lib/actions/nodes-actions';
 import { getNodeLogic } from '@/lib/actions/node-logic-actions';
-import { getProgressItems, getInventoryItems, getAchievements } from '@/lib/actions/dropdown-data-actions';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
-import { NodeLogicDialog } from './_components/node-logic-dialog';
-import { EditNodeDialog } from './_components/edit-node-dialog';
+import { Plus, Edit, Trash2 } from 'lucide-react';
 
 export default async function EpisodeDetailPage({ 
   params 
@@ -27,12 +23,7 @@ export default async function EpisodeDetailPage({
   
   if (!episode) redirect('/admin/episodes');
   
-  const [nodes, progressItems, inventoryItems, achievements] = await Promise.all([
-    getNodesByEpisode(id),
-    getProgressItems(id),
-    getInventoryItems(),
-    getAchievements(),
-  ]);
+  const nodes = await getNodesByEpisode(id);
 
   return (
     <div className="container mx-auto py-8">
@@ -42,53 +33,34 @@ export default async function EpisodeDetailPage({
         </Link>
       </div>
       
-      <h1 className="text-3xl font-bold mb-2">{episode.name}</h1>
-      <p className="text-muted-foreground mb-8">Manage story nodes for this episode</p>
-
-      <div className="bg-card p-6 rounded-lg border mb-8">
-        <h2 className="text-xl font-semibold mb-4">Create New Node</h2>
-        <form action={createNode} className="space-y-4">
-          <input type="hidden" name="episode_id" value={id} />
-          
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="name">Node Name*</Label>
-              <Input id="name" name="name" required placeholder="Chapter 1: The Beginning" />
-            </div>
-            <div>
-              <Label htmlFor="node_category">Category</Label>
-              <select id="node_category" name="node_category" className="w-full border rounded px-3 py-2">
-                <option value="main_story">Main Story</option>
-                <option value="side_quest">Side Quest</option>
-                <option value="tutorial">Tutorial</option>
-                <option value="ending">Ending</option>
-              </select>
-            </div>
-          </div>
-          
-          <div>
-            <Label htmlFor="content_html">Content HTML*</Label>
-            <textarea 
-              id="content_html" 
-              name="content_html" 
-              required
-              className="w-full border rounded px-3 py-2 min-h-32 font-mono text-sm"
-              placeholder="<div><h2>Welcome!</h2><p>Your adventure begins...</p></div>"
-            />
-          </div>
-          
-          <Button type="submit">Create Node</Button>
-        </form>
+      <div className="flex items-center justify-between mb-8">
+        <div>
+          <h1 className="text-3xl font-bold mb-2">{episode.name}</h1>
+          <p className="text-muted-foreground">Gestisci i nodi di questa episodio</p>
+        </div>
+        <Link href={`/admin/episodes/${id}/nodes/create`}>
+          <Button className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600">
+            <Plus className="w-4 h-4 mr-2" />
+            Crea Nuovo Nodo
+          </Button>
+        </Link>
       </div>
 
+      {/* Nodes list */}
       <div className="bg-card rounded-lg border overflow-hidden">
         <div className="p-4 border-b bg-muted">
-          <h2 className="text-lg font-semibold">Nodes ({nodes.length})</h2>
+          <h2 className="text-lg font-semibold">Nodi ({nodes.length})</h2>
         </div>
         
         {nodes.length === 0 ? (
           <div className="p-8 text-center text-muted-foreground">
-            No nodes yet. Create your first node above.
+            <p className="mb-4">Nessun nodo creato. Inizia creando il tuo primo nodo!</p>
+            <Link href={`/admin/episodes/${id}/nodes/create`}>
+              <Button variant="outline">
+                <Plus className="w-4 h-4 mr-2" />
+                Crea Primo Nodo
+              </Button>
+            </Link>
           </div>
         ) : (
           <div className="divide-y">
@@ -99,8 +71,8 @@ export default async function EpisodeDetailPage({
                 <div key={node.node_id} className="p-4 hover:bg-muted/50">
                   <div className="flex justify-between items-start">
                     <div className="flex-1">
-                      <h3 className="font-semibold">{node.name}</h3>
-                      <div className="flex items-center gap-2 mt-1">
+                      <h3 className="font-semibold text-lg">{node.name}</h3>
+                      <div className="flex items-center gap-3 mt-2">
                         <span className="text-xs px-2 py-1 rounded bg-primary/10 text-primary">
                           {node.node_category}
                         </span>
@@ -108,22 +80,24 @@ export default async function EpisodeDetailPage({
                           {new Date(node.created_at).toLocaleDateString()}
                         </span>
                       </div>
+                      <div className="flex items-center gap-4 mt-3 text-sm text-muted-foreground">
+                        <span>🔓 {logic.conditions.length} conditions</span>
+                        <span>🎯 {logic.targets.length} targets</span>
+                        <span>✨ {logic.effects.length} effects</span>
+                      </div>
                     </div>
                     <div className="flex gap-2">
-                        <EditNodeDialog node={node} episodeId={id} />
-                      <NodeLogicDialog 
-                        nodeId={node.node_id}
-                        nodeName={node.name}
-                        episodeId={id}
-                        conditions={logic.conditions}
-                        targets={logic.targets}
-                        effects={logic.effects}
-                        progressItems={progressItems}
-                        inventoryItems={inventoryItems}
-                        achievements={achievements}
-                      />
+                      <Link href={`/admin/episodes/${id}/nodes/${node.node_id}/edit`}>
+                        <Button variant="outline" size="sm">
+                          <Edit className="w-4 h-4 mr-2" />
+                          Modifica
+                        </Button>
+                      </Link>
                       <form action={deleteNode.bind(null, node.node_id, id)}>
-                        <Button variant="destructive" size="sm">Delete</Button>
+                        <Button variant="destructive" size="sm">
+                          <Trash2 className="w-4 h-4 mr-2" />
+                          Elimina
+                        </Button>
                       </form>
                     </div>
                   </div>

@@ -3,13 +3,14 @@
 import { useEffect } from 'react';
 
 interface Props {
-  content: string;
-  nodeId: string;
-  episodeId: string;
   playerId: string;
+  episodeId: string;
+  nodeId: string;
 }
 
-export function NodeContent({ content, nodeId, episodeId, playerId }: Props) {
+export function PlayerScript({ playerId, episodeId, nodeId }: Props) {
+  console.log('PlayerScript RENDER', { playerId, episodeId, nodeId });  // <-- AGGIUNGI QUESTA RIGA
+  
   useEffect(() => {
     const CTX = { playerId, episodeId, nodeId };
 
@@ -90,11 +91,11 @@ export function NodeContent({ content, nodeId, episodeId, playerId }: Props) {
           <div style="font-size:48px;margin-bottom:16px;">🎉</div>
           <h2 style="color:#fbbf24;font-size:24px;margin:0 0 12px;">Nodo Completato!</h2>
           <p style="color:#94a3b8;margin:0 0 24px;">Hai completato tutti gli obiettivi.</p>
-          <button id="evendral-completion-btn" style="background:linear-gradient(90deg,#f59e0b,#ea580c);color:white;border:none;padding:12px 32px;border-radius:8px;font-weight:600;cursor:pointer;">Continua</button>
+          <button id="completion-btn" style="background:linear-gradient(90deg,#f59e0b,#ea580c);color:white;border:none;padding:12px 32px;border-radius:8px;font-weight:600;cursor:pointer;">Continua</button>
         </div>
       `;
       document.body.appendChild(m);
-      document.getElementById('evendral-completion-btn')?.addEventListener('click', () => {
+      document.getElementById('completion-btn')?.addEventListener('click', () => {
         m.remove();
         window.location.reload();
       });
@@ -271,7 +272,7 @@ export function NodeContent({ content, nodeId, episodeId, playerId }: Props) {
       if (targetId) handleOwnedItemCheck(targetId);
     });
 
-    console.log('🎮 Evendral NodeContent ready', CTX);
+    console.log('🎮 Evendral Player ready');
 
     // Cleanup
     return () => {
@@ -279,67 +280,5 @@ export function NodeContent({ content, nodeId, episodeId, playerId }: Props) {
     };
   }, [playerId, episodeId, nodeId]);
 
-  return (
-    <>
-      <style>{`
-        .evendral-target {
-          background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
-          border: 2px solid #475569;
-          border-radius: 8px;
-          padding: 16px;
-          margin: 12px 0;
-        }
-        .evendral-target input {
-          width: 100%;
-          padding: 10px 12px;
-          border-radius: 6px;
-          border: 1px solid #475569;
-          background: #0f172a;
-          color: white;
-          font-size: 16px;
-          margin-bottom: 8px;
-        }
-        .evendral-target input:focus {
-          outline: none;
-          border-color: #f59e0b;
-          box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.2);
-        }
-        .evendral-target button {
-          background: linear-gradient(90deg, #f59e0b, #ea580c);
-          color: white;
-          border: none;
-          padding: 10px 20px;
-          border-radius: 6px;
-          font-weight: 600;
-          cursor: pointer;
-        }
-        .evendral-target button:disabled {
-          opacity: 0.6;
-          cursor: not-allowed;
-        }
-        .evendral-target label {
-          display: block;
-          color: #fbbf24;
-          font-weight: 600;
-          margin-bottom: 8px;
-        }
-        .evendral-target .location-name,
-        .evendral-target .item-check {
-          color: #fbbf24;
-          font-weight: 600;
-          margin: 0 0 4px 0;
-        }
-        .evendral-target .location-hint,
-        .evendral-target .item-hint {
-          color: #94a3b8;
-          font-size: 14px;
-          margin: 0 0 12px 0;
-        }
-      `}</style>
-      <div 
-        className="prose prose-invert max-w-none"
-        dangerouslySetInnerHTML={{ __html: content }}
-      />
-    </>
-  );
+  return <div style={{background:'red',color:'white',padding:'10px'}}>PlayerScript Mounted</div>;
 }
