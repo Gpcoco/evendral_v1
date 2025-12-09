@@ -1,30 +1,31 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { checkOwnedItem } from '@/lib/actions/target-validation-actions';
+import { validateOwnedItem } from '@/lib/actions/target-validation-actions';
 
-export async function GET(request: NextRequest) {
+export async function POST(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url);
-    
-    const playerId = searchParams.get('playerId');
-    const episodeId = searchParams.get('episodeId');
-    const targetId = searchParams.get('targetId');
+    const formData = await request.formData();
+
+    const playerId = formData.get('playerId') as string;
+    const episodeId = formData.get('episodeId') as string;
+    const nodeId = formData.get('nodeId') as string;
+    const targetId = formData.get('targetId') as string;
 
     // Validate required fields
-    if (!playerId || !episodeId || !targetId) {
+    if (!playerId || !episodeId || !nodeId || !targetId) {
       return NextResponse.json(
-        { owned: false, itemName: 'Unknown', error: 'Parametri mancanti' },
+        { success: false, message: 'Parametri mancanti' },
         { status: 400 }
       );
     }
 
     // Call Server Action
-    const result = await checkOwnedItem(playerId, episodeId, targetId);
+    const result = await validateOwnedItem(playerId, episodeId, nodeId, targetId);
 
     return NextResponse.json(result);
   } catch (error) {
     console.error('Error in check-owned-item API:', error);
     return NextResponse.json(
-      { owned: false, itemName: 'Unknown', error: 'Errore del server' },
+      { success: false, message: 'Errore del server' },
       { status: 500 }
     );
   }

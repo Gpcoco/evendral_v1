@@ -47,7 +47,7 @@ export async function getUnlockedNodes(episodeId: string, playerId: string, cate
       }
       
       // ✅ AGGIUNGI: Items inventario (visibili - raccolti dal giocatore)
-      if (condition.type === 'hasItem') {
+      if (condition.type === 'has_inventory_item') {
         return ownedItemIds.has(condition.payload.item_id as string);
       }
       

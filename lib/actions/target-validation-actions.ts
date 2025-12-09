@@ -192,6 +192,51 @@ export async function checkOwnedItem(
 }
 
 /**
+ * Validate OWNED_ITEM target
+ */
+export async function validateOwnedItem(
+  playerId: string,
+  episodeId: string,
+  nodeId: string,
+  targetId: string
+): Promise<ValidateTargetResult> {
+  const supabase = await createClient();
+
+  // 1. Check if player owns the item
+  const { owned, itemName } = await checkOwnedItem(playerId, episodeId, targetId);
+
+  if (!owned) {
+    return {
+      success: false,
+      message: `Item mancante: ${itemName}`
+    };
+  }
+
+  // 2. Mark target as completed
+  await supabase
+    .from('player_target_progress')
+    .upsert({
+      player_id: playerId,
+      target_id: targetId,
+      episode_id: episodeId,
+      completed: true,
+      completed_at: new Date().toISOString(),
+    });
+
+  // 3. Check if all node targets are completed
+  const nodeCompleted = await checkNodeCompletion(playerId, episodeId, nodeId);
+
+  revalidatePath(`/player/episodes/${episodeId}`);
+
+  return {
+    success: true,
+    message: `Item posseduto: ${itemName}`,
+    completed: true,
+    nodeCompleted,
+  };
+}
+
+/**
  * Check if all targets of a node are completed
  */
 export async function checkNodeCompletion(

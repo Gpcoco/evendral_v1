@@ -221,6 +221,7 @@ export function NodeContent({ content, nodeId, episodeId, playerId }: Props) {
 
         const response = await fetch('/api/player/check-owned-item', { method: 'POST', body: fd });
         const res = await response.json();
+        console.log('Owned item check', res);
 
         const txt = el?.querySelector('.item-check') as HTMLElement;
         if (res.success) {
