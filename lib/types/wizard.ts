@@ -1,3 +1,4 @@
+// /lib/types/wizard.ts
 // ===========================================
 // WIZARD TYPES
 // ===========================================
@@ -53,6 +54,7 @@ export interface WizardState {
   // Basic info (compilato nello step 4)
   name: string;
   category: NodeCategory;
+  hideProgressItemId: string | null; // AGGIUNTO: Nascondi nodo quando player ha questo progress item
   
   // Game logic (compilati negli step 1-3)
   conditions: ConditionData[];
@@ -105,6 +107,7 @@ export interface ExistingNode {
   name: string;
   node_category: string;
   content_html: string;
+  hide_progress_item_id: string | null; // AGGIUNTO
   conditions: ExistingNodeCondition[];
   targets: ExistingNodeTarget[];
   effects: ExistingNodeEffect[];

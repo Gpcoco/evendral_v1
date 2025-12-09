@@ -1,3 +1,4 @@
+// /lib/actions/player-nodes-actions.ts
 'use server';
 
 import { createClient } from '@/lib/supabase/server';
@@ -28,7 +29,7 @@ export async function getUnlockedNodes(episodeId: string, playerId: string, cate
 
   const ownedProgressItemIds = new Set(playerSteps?.map(s => s.item_id) || []);
 
-  // ✅ AGGIUNGI: Recupera items nell'inventario episodio (visibili)
+  // Recupera items nell'inventario episodio (visibili)
   const { data: playerInventory } = await supabase
     .from('player_episode_inventory')
     .select('item_id')
@@ -38,6 +39,12 @@ export async function getUnlockedNodes(episodeId: string, playerId: string, cate
   const ownedItemIds = new Set(playerInventory?.map(i => i.item_id) || []);
 
   const unlocked = nodes.filter(node => {
+    // ✅ NUOVO: Filtra nodi nascosti quando player ha completato il progress_item
+    if (node.hide_progress_item_id && ownedProgressItemIds.has(node.hide_progress_item_id)) {
+      return false; // Nasconde il nodo
+    }
+
+    // Verifica conditions per unlock (logica esistente)
     if (!node.conditions || node.conditions.length === 0) return true;
 
     return node.conditions.every((condition: { type: string; payload: Record<string, unknown> }) => {
@@ -46,7 +53,7 @@ export async function getUnlockedNodes(episodeId: string, playerId: string, cate
         return ownedProgressItemIds.has(condition.payload.item_id as string);
       }
       
-      // ✅ AGGIUNGI: Items inventario (visibili - raccolti dal giocatore)
+      // Items inventario (visibili - raccolti dal giocatore)
       if (condition.type === 'has_inventory_item') {
         return ownedItemIds.has(condition.payload.item_id as string);
       }

@@ -1,3 +1,4 @@
+// /app/admin/episodes/[id]/_components/node-wizard.tsx
 'use client';
 
 import { useState } from 'react';
@@ -25,7 +26,7 @@ import { StepHtmlEditor } from './step-html-editor';
 
 interface Props {
   episodeId: string;
-  dropdownData: DropdownData; // Sarà usato nei componenti step
+  dropdownData: DropdownData;
   mode: 'create' | 'edit';
   existingNode?: ExistingNode;
 }
@@ -45,6 +46,7 @@ export function NodeWizard({ episodeId, dropdownData, mode, existingNode }: Prop
   const [state, setState] = useState<WizardState>({
     name: existingNode?.name || '',
     category: (existingNode?.node_category as NodeCategory) || 'main_story',
+    hideProgressItemId: existingNode?.hide_progress_item_id || null, // AGGIUNTO
     conditions: existingNode?.conditions.map(c => ({
       type: c.type as ConditionType,
       payload: c.payload,
@@ -100,6 +102,7 @@ export function NodeWizard({ episodeId, dropdownData, mode, existingNode }: Prop
       const nodeData = {
         name: state.name,
         category: state.category,
+        hideProgressItemId: state.hideProgressItemId, // AGGIUNTO
         contentHtml: state.contentHtml,
         conditions: state.conditions.map((c: ConditionData) => ({ type: c.type, payload: c.payload })),
         targets: state.targets.map((t: TargetData) => ({ type: t.type, payload: t.payload })),
@@ -178,7 +181,6 @@ export function NodeWizard({ episodeId, dropdownData, mode, existingNode }: Prop
       {/* Step Content */}
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto">
-          {/* Qui renderizzeremo i componenti per ogni step */}
           {state.currentStep === 1 && (
             <div className="bg-slate-800 rounded-lg border border-slate-700 p-6">
               <h2 className="text-xl font-bold mb-4">Step 1: Conditions (Opzionale)</h2>
@@ -233,6 +235,7 @@ export function NodeWizard({ episodeId, dropdownData, mode, existingNode }: Prop
                 state={state}
                 onChange={(updates) => setState((prev: WizardState) => ({ ...prev, ...updates }))}
                 inventoryItems={dropdownData.inventoryItems}
+                progressItems={dropdownData.progressItems} // AGGIUNTO
               />
             </div>
           )}

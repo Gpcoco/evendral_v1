@@ -1,3 +1,4 @@
+// /app/admin/episodes/[id]/_components/step-html-editor.tsx
 'use client';
 
 import { useState, useRef } from 'react';
@@ -13,7 +14,8 @@ import {
   Package, 
   KeyRound,
   Info,
-  CheckCircle2
+  CheckCircle2,
+  EyeOff
 } from 'lucide-react';
 import type { WizardState, NodeCategory } from '@/lib/types/wizard';
 
@@ -21,9 +23,10 @@ interface Props {
   state: WizardState;
   onChange: (updates: Partial<WizardState>) => void;
   inventoryItems: Array<{item_id: string, name: string}>;
+  progressItems: Array<{progress_item_id: string, name: string}>;
 }
 
-export function StepHtmlEditor({ state, onChange, inventoryItems }: Props) {
+export function StepHtmlEditor({ state, onChange, inventoryItems, progressItems }: Props) {
   const [activeTab, setActiveTab] = useState<'editor' | 'preview'>('editor');
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -183,7 +186,7 @@ export function StepHtmlEditor({ state, onChange, inventoryItems }: Props) {
   return (
     <div className="space-y-6">
       {/* Basic Info */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div>
           <Label htmlFor="node-name">Nome Nodo*</Label>
           <Input
@@ -209,6 +212,25 @@ export function StepHtmlEditor({ state, onChange, inventoryItems }: Props) {
             <option value="ending">Ending</option>
           </select>
         </div>
+        <div>
+          <Label htmlFor="hide-progress-item" className="flex items-center gap-2">
+            <EyeOff className="w-4 h-4 text-slate-400" />
+            Nascondi quando completato
+          </Label>
+          <select
+            id="hide-progress-item"
+            value={state.hideProgressItemId || ''}
+            onChange={(e) => onChange({ hideProgressItemId: e.target.value || null })}
+            className="w-full bg-slate-800 border border-slate-600 rounded px-3 py-2 text-white"
+          >
+            <option value="">Nessuno (sempre visibile)</option>
+            {progressItems.map((item) => (
+              <option key={item.progress_item_id} value={item.progress_item_id}>
+                {item.name}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
 
       {/* Info Banner */}
@@ -216,10 +238,14 @@ export function StepHtmlEditor({ state, onChange, inventoryItems }: Props) {
         <Info className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" />
         <div className="text-sm text-blue-200">
           <p className="font-semibold mb-1">Come funziona</p>
-          <p className="text-blue-300/80">
+          <p className="text-blue-300/80 mb-2">
             Scrivi il tuo HTML custom e clicca <strong>Inserisci</strong> nella sidebar per aggiungere 
             i target dove vuoi. I placeholder <code className="bg-blue-900/50 px-1 rounded">{'{{TARGET_X}}'}</code> verranno 
             sostituiti automaticamente con gli elementi interattivi al salvataggio.
+          </p>
+          <p className="text-blue-300/80">
+            <strong>Hide Progress Item:</strong> Se selezioni un progress item, questo nodo verrà nascosto 
+            dalla lista quando il giocatore ottiene quel progress item (utile per tenere pulita la schermata).
           </p>
         </div>
       </div>

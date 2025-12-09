@@ -1,3 +1,4 @@
+// /lib/actions/nodes-actions.ts
 'use server';
 
 import { createClient } from '@/lib/supabase/server';
@@ -166,6 +167,7 @@ export async function updateNode(nodeId: string, episodeId: string, formData: Fo
 interface NodeWithLogicData {
   name: string;
   category: NodeCategory;
+  hideProgressItemId: string | null; // AGGIUNTO
   contentHtml: string; // HTML con placeholder {{TARGET_X}}
   conditions: Array<{ type: string; payload: Record<string, unknown> }>;
   targets: Array<{ type: string; payload: Record<string, unknown> }>;
@@ -182,6 +184,7 @@ export async function createNodeWithLogic(episodeId: string, data: NodeWithLogic
       episode_id: episodeId,
       name: data.name,
       node_category: data.category,
+      hide_progress_item_id: data.hideProgressItemId, // AGGIUNTO
       content_html: '', // Verrà aggiornato dopo
       custom_data: {},
     })
@@ -317,6 +320,7 @@ export async function updateNodeWithLogic(nodeId: string, episodeId: string, dat
     .update({
       name: data.name,
       node_category: data.category,
+      hide_progress_item_id: data.hideProgressItemId, // AGGIUNTO
       content_html: processedHtml,
     })
     .eq('node_id', nodeId);
