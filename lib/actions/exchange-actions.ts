@@ -29,7 +29,7 @@ export async function createExchangeSession(
 ): Promise<{ success: boolean; sessionId?: string; error?: string }> {
   try {
     const supabase = await createClient();
-
+    console.log('Creating exchange session between:', playerAId, 'and', playerBId); 
     // Verifica che entrambi i giocatori esistano
     const { data: players, error: playersError } = await supabase
       .from('player')
@@ -146,7 +146,7 @@ export async function selectItemForExchange(
     if (!session) {
       return { success: false, error: 'Sessione non trovata' };
     }
-
+    console.log('session:', session);
     const isPlayerA = session.player_a_id === playerId;
     const updateField = isPlayerA ? 'player_a_item_id' : 'player_b_item_id';
 
@@ -238,7 +238,7 @@ async function executeExchange(sessionId: string): Promise<{ success: boolean; e
       .select('*')
       .eq('session_id', sessionId)
       .single();
-
+    console.log('session in executeExchange:', session);
     if (sessionError || !session) {
       return { success: false, error: 'Sessione non trovata' };
     }
@@ -250,7 +250,7 @@ async function executeExchange(sessionId: string): Promise<{ success: boolean; e
     const { error: swapError } = await supabase.rpc('swap_inventory_items', {
       p_session_id: sessionId
     });
-
+    console.log('swapError:', swapError);
     if (swapError) {
       // Se la funzione RPC fallisce, annulla la sessione
       await supabase

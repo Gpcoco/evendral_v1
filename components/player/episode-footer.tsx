@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Home, Package, QrCode, User } from 'lucide-react';
+import { Home, Package, QrCode } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 
 interface Props {
@@ -18,7 +18,7 @@ export function EpisodeFooter({ episodeId, inventoryCount = 0, onScanQr }: Props
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-40 bg-slate-900/95 backdrop-blur border-t border-slate-700 shadow-lg">
       <div className="container mx-auto px-2">
-        <div className="grid grid-cols-4 gap-1 py-2">
+        <div className="grid grid-cols-3 gap-1 py-2">
           {/* Storia */}
           <Link 
             href={`/player/episodes/${episodeId}`}
@@ -58,19 +58,6 @@ export function EpisodeFooter({ episodeId, inventoryCount = 0, onScanQr }: Props
             <QrCode size={22} />
             <span className="text-[10px] font-medium">Scan QR</span>
           </button>
-
-          {/* Profilo */}
-          <Link
-            href={`/player/episodes/${episodeId}/profile`}
-            className={`flex flex-col items-center gap-1 py-2 rounded-lg transition-colors ${
-              isActive(`/player/episodes/${episodeId}/profile`) 
-                ? 'text-amber-400 bg-amber-500/10' 
-                : 'text-slate-400 hover:text-white hover:bg-slate-800/50'
-            }`}
-          >
-            <User size={22} />
-            <span className="text-[10px] font-medium">Profilo</span>
-          </Link>
         </div>
       </div>
     </nav>

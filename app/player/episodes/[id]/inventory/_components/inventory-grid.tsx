@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
-import { ItemDetailDialog } from './item-detail-dialog';
+import { ItemActionMenu } from '@/components/player/item-action-menu';
 import Image from 'next/image';
 import { Package } from 'lucide-react';
 
@@ -25,6 +25,8 @@ interface InventoryItem {
 
 interface Props {
   inventory: InventoryItem[];
+  episodeId: string;
+  onItemConsumed?: () => void;
 }
 
 const rarityColors = {
@@ -35,8 +37,21 @@ const rarityColors = {
   legendary: 'from-amber-500 to-orange-600'
 };
 
-export function InventoryGrid({ inventory }: Props) {
+export function InventoryGrid({ inventory, episodeId, onItemConsumed }: Props) {
   const [selectedItem, setSelectedItem] = useState<InventoryItem | null>(null);
+
+  const handleConsume = async (itemId: string) => {
+    // TODO: Implementare consumo item con applicazione effetti
+    console.log('Consuming item:', itemId);
+    
+    // Per ora solo alert
+    alert('Funzionalità "Consuma" in sviluppo - verrà collegata al sistema status effects');
+    
+    // Callback per refresh inventario
+    if (onItemConsumed) {
+      onItemConsumed();
+    }
+  };
 
   if (inventory.length === 0) {
     return (
@@ -102,10 +117,12 @@ export function InventoryGrid({ inventory }: Props) {
         ))}
       </div>
 
-      {/* Item Detail Dialog */}
-      <ItemDetailDialog
+      {/* Item Action Menu - Sostituisce il vecchio ItemDetailDialog */}
+      <ItemActionMenu
         item={selectedItem}
+        episodeId={episodeId}
         onClose={() => setSelectedItem(null)}
+        onConsume={handleConsume}
       />
     </>
   );

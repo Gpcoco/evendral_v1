@@ -32,7 +32,10 @@ export default async function InventoryPage({
       episodeName={episode.name}
       inventoryCount={inventory.length}
     >
-      <InventoryGrid inventory={inventory} />
+      <InventoryGrid 
+        inventory={inventory} 
+        episodeId={id}
+      />
     </InventoryLayout>
   );
 }
