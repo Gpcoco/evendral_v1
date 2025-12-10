@@ -227,6 +227,7 @@ export async function confirmExchange(
 /**
  * Esegue lo scambio effettivo degli oggetti
  */
+// In exchange-actions.ts, sostituisci la funzione executeExchange
 async function executeExchange(sessionId: string): Promise<{ success: boolean; error?: string }> {
   try {
     const supabase = await createClient();
@@ -242,30 +243,23 @@ async function executeExchange(sessionId: string): Promise<{ success: boolean; e
       return { success: false, error: 'Sessione non trovata' };
     }
 
-    // Verifica che gli oggetti esistano ancora
-    const { data: items, error: itemsError } = await supabase
-      .from('player_episode_inventory')
-      .select('player_id, item_id')
-      .eq('episode_id', session.episode_id)
-      .or(`player_id.eq.${session.player_a_id},player_id.eq.${session.player_b_id}`)
-      .or(`item_id.eq.${session.player_a_item_id},item_id.eq.${session.player_b_item_id}`);
-
-    if (itemsError || !items || items.length !== 2) {
-      // Annulla la sessione se gli oggetti non esistono più
-      await supabase
-        .from('exchange_sessions')
-        .update({ status: 'cancelled' })
-        .eq('session_id', sessionId);
-      
-      return { success: false, error: 'Uno o entrambi gli oggetti non sono più disponibili' };
-    }
+    // RIMOSSO: La verifica buggy che causava il problema
+    // La funzione RPC swap_inventory_items già gestisce gli errori con RAISE EXCEPTION
 
     // Esegui lo scambio usando la funzione database
     const { error: swapError } = await supabase.rpc('swap_inventory_items', {
       p_session_id: sessionId
     });
 
-    if (swapError) throw swapError;
+    if (swapError) {
+      // Se la funzione RPC fallisce, annulla la sessione
+      await supabase
+        .from('exchange_sessions')
+        .update({ status: 'cancelled' })
+        .eq('session_id', sessionId);
+        
+      throw swapError;
+    }
 
     // Marca la sessione come completata
     const { error: completeError } = await supabase
