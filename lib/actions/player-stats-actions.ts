@@ -79,18 +79,20 @@ export async function getPlayerEpisodeStats(
 /**
  * Recupera tutti gli effetti attivi di un giocatore in un episodio
  */
+// /lib/actions/player-stats-actions.ts
+
 export async function getActiveStatusEffects(
   playerId: string,
   episodeId: string
 ): Promise<ActiveStatusEffect[]> {
   const supabase = await createClient();
 
+  // Query più semplice - prendi tutti e filtra dopo
   const { data, error } = await supabase
     .from('player_status_effects')
     .select('*')
     .eq('player_id', playerId)
     .eq('episode_id', episodeId)
-    .or('expires_at.is.null,expires_at.gt.now()')
     .order('applied_at', { ascending: false });
 
   if (error) {
@@ -98,7 +100,18 @@ export async function getActiveStatusEffects(
     return [];
   }
 
-  return data || [];
+  // Filtra lato client gli effetti scaduti
+  const now = new Date();
+  const activeEffects = (data || []).filter(effect => {
+    // Se non ha scadenza, è attivo
+    if (!effect.expires_at) return true;
+    // Se ha scadenza, controlla se è nel futuro
+    return new Date(effect.expires_at) > now;
+  });
+
+  console.log('🔍 Active effects found:', activeEffects.length); // Debug log
+  
+  return activeEffects;
 }
 
 /**

@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
+import { applyItemEffects } from './item-effects';
 
 export type ExchangeStatus = 'active' | 'completed' | 'cancelled';
 
@@ -238,19 +239,20 @@ async function executeExchange(sessionId: string): Promise<{ success: boolean; e
       .select('*')
       .eq('session_id', sessionId)
       .single();
+    
     console.log('session in executeExchange:', session);
+    
     if (sessionError || !session) {
       return { success: false, error: 'Sessione non trovata' };
     }
-
-    // RIMOSSO: La verifica buggy che causava il problema
-    // La funzione RPC swap_inventory_items già gestisce gli errori con RAISE EXCEPTION
 
     // Esegui lo scambio usando la funzione database
     const { error: swapError } = await supabase.rpc('swap_inventory_items', {
       p_session_id: sessionId
     });
+    
     console.log('swapError:', swapError);
+    
     if (swapError) {
       // Se la funzione RPC fallisce, annulla la sessione
       await supabase
@@ -259,6 +261,31 @@ async function executeExchange(sessionId: string): Promise<{ success: boolean; e
         .eq('session_id', sessionId);
         
       throw swapError;
+    }
+
+    // ✨ NUOVO: Applica effetti per entrambi i player che ricevono items
+    console.log('🎯 Applying item effects after exchange...');
+    
+    // Player A riceve item da Player B
+    if (session.player_b_item_id) {
+      const resultA = await applyItemEffects(
+        session.player_a_id,
+        session.episode_id,
+        session.player_b_item_id,
+        'receive'
+      );
+      console.log(`Player A received item effects:`, resultA);
+    }
+    
+    // Player B riceve item da Player A
+    if (session.player_a_item_id) {
+      const resultB = await applyItemEffects(
+        session.player_b_id,
+        session.episode_id,
+        session.player_a_item_id,
+        'receive'
+      );
+      console.log(`Player B received item effects:`, resultB);
     }
 
     // Marca la sessione come completata

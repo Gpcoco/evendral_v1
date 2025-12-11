@@ -13,9 +13,9 @@ export default function Home() {
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 bg-gradient-to-br from-amber-500 to-orange-600 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-lg">E</span>
+              <span className="text-white font-bold text-lg">N</span>
             </div>
-            <span className="text-white font-bold text-xl">Evendral</span>
+            <span className="text-white font-bold text-xl">Nextory</span>
           </div>
           {hasEnvVars && <AuthButton />}
         </div>
@@ -32,7 +32,7 @@ export default function Home() {
               Esplora mondi immersivi, risolvi enigmi e raccogli oggetti nelle tue avventure dal vivo
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center pt-8">
-              <Link href="/auth/login">
+              <Link href="/player/profile/">
                 <Button size="lg" className="bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white text-lg px-8">
                   Inizia Ora
                   <ArrowRight className="ml-2" />
@@ -138,12 +138,12 @@ export default function Home() {
           <div className="flex flex-col md:flex-row justify-between items-center gap-6">
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 bg-gradient-to-br from-amber-500 to-orange-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-lg">E</span>
+                <span className="text-white font-bold text-lg">N</span>
               </div>
-              <span className="text-white font-semibold">Evendral</span>
+              <span className="text-white font-semibold">Nextory</span>
             </div>
             <p className="text-slate-400 text-sm">
-              © 2024 Evendral. Tutti i diritti riservati.
+              © 2025 Nextory. Uso del motore Evendral sotto licenza. Tutti i diritti riservati.
             </p>
           </div>
         </div>
