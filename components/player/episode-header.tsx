@@ -21,6 +21,8 @@ import {
 } from '@/lib/actions/player-stats-actions';
 import { getEffectConfig, formatTimeRemaining } from '@/lib/config/status-effects';
 import { createClient } from '@/lib/supabase/client';
+import { GpsStatusIndicator } from '@/components/gps/gps-status-indicator';
+import { GpsSettingsMenu } from '@/components/gps/gps-settings-menu';
 
 interface Props {
   episodeId: string;
@@ -86,7 +88,7 @@ export function EpisodeHeader({ episodeId, episodeName, playerId, playerName }: 
 
   return (
     <header className="sticky top-0 z-40 bg-slate-900/95 backdrop-blur border-b border-slate-700 shadow-lg">
-      {/* Prima riga: Titolo + Profilo */}
+      {/* Prima riga: Titolo + GPS Status + Profilo */}
       <div className="border-b border-slate-800">
         <div className="container mx-auto px-3 py-3 max-w-full">
           <div className="flex items-center justify-between gap-3">
@@ -100,125 +102,136 @@ export function EpisodeHeader({ episodeId, episodeName, playerId, playerName }: 
               </p>
             </div>
 
-            {/* Dropdown Profilo */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button 
-                  size="sm" 
-                  variant="outline"
-                  className="border-slate-600 hover:bg-slate-800 flex-shrink-0"
+            {/* GPS Status Indicator + Dropdown Profilo */}
+            <div className="flex items-center gap-2">
+              {/* Indicatore GPS (visibile solo su schermi non troppo piccoli) */}
+              <div className="hidden xs:block">
+                <GpsStatusIndicator />
+              </div>
+
+              {/* Dropdown Profilo */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button 
+                    size="sm" 
+                    variant="outline"
+                    className="border-slate-600 hover:bg-slate-800 flex-shrink-0"
+                  >
+                    <User className="w-4 h-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent 
+                  align="end" 
+                  className="w-80 bg-slate-900 border-slate-700"
                 >
-                  <User className="w-4 h-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent 
-                align="end" 
-                className="w-80 bg-slate-900 border-slate-700"
-              >
-                <DropdownMenuLabel className="text-slate-300">
-                  Profilo Episodio
-                </DropdownMenuLabel>
-                <DropdownMenuSeparator className="bg-slate-700" />
-                
-                {/* Statistiche Completamento */}
-                {stats && (
-                  <div className="px-2 py-3">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm text-slate-400">Progressione</span>
-                      <span className="text-sm font-bold text-amber-400">
-                        {stats.completionPercentage}%
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-2 text-xs text-slate-500">
-                      <TrendingUp className="w-3 h-3" />
-                      <span>
-                        {stats.nodesCompleted} / {stats.nodesTotal} nodi completati
-                      </span>
-                    </div>
-                  </div>
-                )}
-
-                {/* Effetti Attivi */}
-                {effects.length > 0 && (
-                  <>
-                    <DropdownMenuSeparator className="bg-slate-700" />
-                    <div className="px-2 py-2">
-                      <span className="text-xs font-semibold text-slate-400 uppercase tracking-wide">
-                        Effetti Attivi
-                      </span>
-                      <div className="mt-2 space-y-2">
-                        {effects.map(effect => {
-                          const config = getEffectConfig(effect.status_type);
-                          if (!config) return null;
-
-                          return (
-                            <div
-                              key={effect.status_effect_id}
-                              className={`p-2 rounded-lg border ${
-                                EFFECT_COLOR_CLASSES[config.color]
-                              }`}
-                            >
-                              <div className="flex items-start justify-between gap-2">
-                                <div className="flex items-center gap-2 flex-1 min-w-0">
-                                  <span className="text-lg">{config.icon}</span>
-                                  <div className="flex-1 min-w-0">
-                                    <div className="font-semibold text-sm truncate">
-                                      {config.name}
-                                    </div>
-                                    <div className="text-xs opacity-80 truncate">
-                                      {config.description}
-                                    </div>
-                                  </div>
-                                </div>
-                                {effect.expires_at && (
-                                  <Badge 
-                                    variant="secondary" 
-                                    className="text-[10px] bg-slate-800 text-slate-300 flex-shrink-0"
-                                  >
-                                    {timeRemaining[effect.status_effect_id] || '...'}
-                                  </Badge>
-                                )}
-                              </div>
-                            </div>
-                          );
-                        })}
+                  <DropdownMenuLabel className="text-slate-300">
+                    Profilo Episodio
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator className="bg-slate-700" />
+                  
+                  {/* Statistiche Completamento */}
+                  {stats && (
+                    <div className="px-2 py-3">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-sm text-slate-400">Progressione</span>
+                        <span className="text-sm font-bold text-amber-400">
+                          {stats.completionPercentage}%
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2 text-xs text-slate-500">
+                        <TrendingUp className="w-3 h-3" />
+                        <span>
+                          {stats.nodesCompleted} / {stats.nodesTotal} nodi completati
+                        </span>
                       </div>
                     </div>
-                  </>
-                )}
+                  )}
 
-                {effects.length === 0 && (
-                  <>
-                    <DropdownMenuSeparator className="bg-slate-700" />
-                    <div className="px-2 py-3 text-center text-xs text-slate-500">
-                      Nessun effetto attivo
-                    </div>
-                  </>
-                )}
+                  {/* Effetti Attivi */}
+                  {effects.length > 0 && (
+                    <>
+                      <DropdownMenuSeparator className="bg-slate-700" />
+                      <div className="px-2 py-2">
+                        <span className="text-xs font-semibold text-slate-400 uppercase tracking-wide">
+                          Effetti Attivi
+                        </span>
+                        <div className="mt-2 space-y-2">
+                          {effects.map(effect => {
+                            const config = getEffectConfig(effect.status_type);
+                            if (!config) return null;
 
-                <DropdownMenuSeparator className="bg-slate-700" />
-                
-                {/* Link Profilo */}
-                <DropdownMenuItem asChild>
-                  <Link 
-                    href="/player/profile"
-                    className="cursor-pointer text-slate-300 hover:text-white"
+                            return (
+                              <div
+                                key={effect.status_effect_id}
+                                className={`p-2 rounded-lg border ${
+                                  EFFECT_COLOR_CLASSES[config.color]
+                                }`}
+                              >
+                                <div className="flex items-start justify-between gap-2">
+                                  <div className="flex items-center gap-2 flex-1 min-w-0">
+                                    <span className="text-lg">{config.icon}</span>
+                                    <div className="flex-1 min-w-0">
+                                      <div className="font-semibold text-sm truncate">
+                                        {config.name}
+                                      </div>
+                                      <div className="text-xs opacity-80 truncate">
+                                        {config.description}
+                                      </div>
+                                    </div>
+                                  </div>
+                                  {effect.expires_at && (
+                                    <Badge 
+                                      variant="secondary" 
+                                      className="text-[10px] bg-slate-800 text-slate-300 flex-shrink-0"
+                                    >
+                                      {timeRemaining[effect.status_effect_id] || '...'}
+                                    </Badge>
+                                  )}
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    </>
+                  )}
+
+                  {effects.length === 0 && (
+                    <>
+                      <DropdownMenuSeparator className="bg-slate-700" />
+                      <div className="px-2 py-3 text-center text-xs text-slate-500">
+                        Nessun effetto attivo
+                      </div>
+                    </>
+                  )}
+
+                  {/* 🆕 SEZIONE GPS SETTINGS */}
+                  <GpsSettingsMenu />
+
+                  <DropdownMenuSeparator className="bg-slate-700" />
+                  
+                  {/* Link Profilo */}
+                  <DropdownMenuItem asChild>
+                    <Link 
+                      href="/player/profile"
+                      className="cursor-pointer text-slate-300 hover:text-white"
+                    >
+                      <User className="w-4 h-4 mr-2" />
+                      Profilo Generale
+                    </Link>
+                  </DropdownMenuItem>
+
+                  {/* Logout */}
+                  <DropdownMenuItem 
+                    onClick={handleLogout}
+                    className="cursor-pointer text-red-400 hover:text-red-300 hover:bg-red-500/10"
                   >
-                    <User className="w-4 h-4 mr-2" />
-                    Profilo Generale
-                  </Link>
-                </DropdownMenuItem>
-
-                {/* Logout */}
-                <DropdownMenuItem 
-                  onClick={handleLogout}
-                  className="cursor-pointer text-red-400 hover:text-red-300 hover:bg-red-500/10"
-                >
-                  <LogOut className="w-4 h-4 mr-2" />
-                  Logout
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+                    <LogOut className="w-4 h-4 mr-2" />
+                    Logout
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
           </div>
         </div>
       </div>
