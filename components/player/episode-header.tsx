@@ -21,7 +21,7 @@ import {
 } from '@/lib/actions/player-stats-actions';
 import { getEffectConfig, formatTimeRemaining } from '@/lib/config/status-effects';
 import { createClient } from '@/lib/supabase/client';
-import { GpsStatusIndicator } from '@/components/gps/gps-status-indicator';
+import { GpsTrackingCircle } from '@/components/gps/gps-tracking-circle'
 import { GpsSettingsMenu } from '@/components/gps/gps-settings-menu';
 
 interface Props {
@@ -105,9 +105,7 @@ export function EpisodeHeader({ episodeId, episodeName, playerId, playerName }: 
             {/* GPS Status Indicator + Dropdown Profilo */}
             <div className="flex items-center gap-2">
               {/* Indicatore GPS (visibile solo su schermi non troppo piccoli) */}
-              <div className="hidden xs:block">
-                <GpsStatusIndicator />
-              </div>
+              <GpsTrackingCircle />
 
               {/* Dropdown Profilo */}
               <DropdownMenu>
