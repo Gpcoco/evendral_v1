@@ -57,20 +57,7 @@ export function GpsTrackingBar() {
         />
       )}
       
-      {/* 🐛 DEBUG INFO - SEMPRE VISIBILE */}
-      <div className="bg-black/95 text-white text-[11px] p-2 font-mono border-b border-slate-700">
-        <div className="flex items-center gap-3 flex-wrap">
-          <span className={state.isEnabled ? 'text-emerald-400 font-bold' : 'text-red-400'}>
-            GPS: {state.isEnabled ? '✅ ATTIVO' : '❌ DISATTIVO'}
-          </span>
-          <span>Interval: {state.interval}s</span>
-          <span>Progress: {progress.toFixed(0)}%</span>
-          <span>Last: {state.lastUpdate?.toLocaleTimeString('it-IT') || 'Mai'}</span>
-          <span>Tracking: {state.isTracking ? '🔄 In corso' : '✓ Idle'}</span>
-          <span>Permission: {state.permissionState}</span>
-          {state.error && <span className="text-red-400 font-bold">⚠️ {state.error}</span>}
-        </div>
-      </div>
+      
     </div>
   )
 }
